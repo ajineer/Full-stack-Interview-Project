@@ -1,0 +1,4 @@
+Game initialization:
+Post request to games table - shuffle 20 cards (10 pairs) and place them - return random player index to decide which player starts
+Player turns:
+Post request to
