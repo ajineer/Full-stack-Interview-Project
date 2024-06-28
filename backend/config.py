@@ -15,7 +15,7 @@ metadata = MetaData(
 
 app = Flask(
     __name__,
-    instance_path="/Users/ajineer/Desktop/Development/code/Full-stack_interview_Project/instance",
+    instance_path="/Users/ajineer/Desktop/Development/code/Full-stack Interview Project",
 )
 db = SQLAlchemy(metadata=metadata)
 bcrypt = Bcrypt(app)
