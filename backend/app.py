@@ -1,5 +1,5 @@
 from config import app, api
-from gameController import GameMethods, GamesById
+from controllers import GameMethods, GamesById
 
 
 api.add_resource(GameMethods, "/game")
