@@ -7,6 +7,5 @@ if __name__ == "__main__":
         # Game.query.delete()
         # Player.query.delete()
         # Card.query.delete()
-
         db.session.commit()
         # db.create_all()

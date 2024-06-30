@@ -9,8 +9,8 @@ import json
 
 class GameMethods(Resource):
     def create_cards(self, game_id):
-        ints_array = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9]
-        positions = [(x, y) for x in [0, 1, 2, 3, 4] for y in [0, 1, 2, 3, 4, 5]]
+        ints_array = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10]
+        positions = [[x, y] for x in [1, 2, 3, 4, 5] for y in [1, 2, 3, 4, 5, 6]]
         random.shuffle(positions)
         cards = list()
         index = 0
@@ -25,28 +25,10 @@ class GameMethods(Resource):
             index += 1
         return cards
 
-    def get(self):
-
-        game = Game.query.filter(Game.id == session.get("game_id")).first()
-        if game and not game.state == "complete":
-            return (
-                game.to_dict(
-                    rules=(
-                        "cards",
-                        "players",
-                    )
-                ),
-                201,
-            )
-        return {"error": "could not retrieve game"}, 404
-
     def post(self):
 
         try:
-            new_game = Game(
-                current_player=random.randint(1, 2),
-                state="active",
-            )
+            new_game = Game(current_player=random.randint(1, 2))
             db.session.add(new_game)
             db.session.commit()
             cards = self.create_cards(new_game.id)
@@ -73,6 +55,14 @@ class GameMethods(Resource):
 
 class GamesById(Resource):
 
+    def get(self, game_id):
+        if session.get("game_id"):
+            game = Game.query.filter(Game.id == game_id).first()
+            if game:
+                return game.to_dict(rules=("players", "cards")), 200
+            return {"error": "game not found"}, 404
+        return {"error": "no game session established"}
+
     def post(self, game_id):
         game = Game.query.filter(Game.id == game_id).first()
         if game:
@@ -93,11 +83,14 @@ class GamesById(Resource):
                     db.session.delete(game)
                     db.session.commit()
                     session["game_id"] = None
-                    return (
-                        f"player {players[0].id} wins!"
-                        if game.players[0].score > game.players[1].score
-                        else f"player {players[1].id} wins!"
-                    )
+                    if game.players[0].score > game.players[1]:
+                        return f"player {players[0].id} wins!"
+                    elif game.players[1].score > game.players[0]:
+                        return f"player {players[1].id} wins!"
+                    else:
+                        return (
+                            f"player {players[0].id} and player {players[1].id} tied."
+                        )
                 elif request.get_json()["command"] == "reset":
                     db.session.delete(game)
                     db.session.commit()
@@ -140,8 +133,8 @@ class GamesById(Resource):
                         202,
                     )
                 elif not card_1.value == card_2.value:
-                    player_1 = game.players[0].id
-                    player_2 = game.players[1].id
+                    player_1 = game.players[0]
+                    player_2 = game.players[1]
                     new_current_player = (
                         player_1.id
                         if not current_player.id == player_1.id
@@ -149,7 +142,7 @@ class GamesById(Resource):
                     )
                     setattr(game, "current_player", new_current_player)
                     db.session.add(game)
-                    db.session.commit(game)
+                    db.session.commit()
                     return (
                         game.to_dict(
                             rules=(
