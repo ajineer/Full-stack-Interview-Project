@@ -12,6 +12,7 @@ flask-restful = "*"
 sqlalchemy = "*"
 flask-bcrypt = "*"
 flask-cors = "*"
+itsdangerous = "*"
 
 [dev-packages]
 

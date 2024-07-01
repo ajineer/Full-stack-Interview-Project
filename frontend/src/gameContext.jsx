@@ -19,6 +19,11 @@ export const CardReducer = (state, action) => {
 
 export const PlayerReducer = (state, action) => {
     switch(action.type){
+        case "SET_PLAYERS":
+          return {
+            players: action.payload
+          }
+
         case "PATCH_PLAYERS":   
             return {
                 players: action.payload.players
@@ -36,11 +41,11 @@ export const CardsContextProvider = ({ children }) => {
   )
 }
 export const PlayersContextProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(PlayerContext, {
+  const [state, dispatch] = useReducer(PlayerReducer, {
     players: [],
   })
   return (
-    <PlayerContext.Provider> value={{...state, dispatch}}
+    <PlayerContext.Provider value={{...state, dispatch}}>
       { children }
     </PlayerContext.Provider>
   )

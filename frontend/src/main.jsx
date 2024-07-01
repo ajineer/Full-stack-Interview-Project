@@ -7,12 +7,12 @@ import { BrowserRouter as Router} from 'react-router-dom'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {/* <CardsContextProvider> */}
-      {/* <PlayersContextProvider> */}
+    <CardsContextProvider>
+      <PlayersContextProvider>
         <Router>
           <App />
         </Router>
-      {/* </PlayersContextProvider> */}
-    {/* </CardsContextProvider> */}
+      </PlayersContextProvider>
+    </CardsContextProvider>
   </React.StrictMode>,
 )

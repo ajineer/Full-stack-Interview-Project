@@ -1,8 +1,7 @@
 from config import app, api
 from controllers import GameMethods, GamesById
 
-
-api.add_resource(GameMethods, "/game")
+api.add_resource(GameMethods, "/game", endpoint="game")
 api.add_resource(GamesById, "/game/<int:game_id>")
 
 

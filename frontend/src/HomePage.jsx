@@ -1,8 +1,17 @@
 import React from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
 import { beginGame } from './routes'
+import { useNavigate } from 'react-router-dom'
 
-const HomePage = ({handleGameStart}) => {
+const HomePage = ({setGame}) => {
+
+    const navigate = useNavigate()
+
+    const handleGameStart = async () => {
+        const response = await beginGame()
+        const json = await response.json()
+        setGame({...json})
+        navigate('/gamePage')
+    }
     
     return (
     <>

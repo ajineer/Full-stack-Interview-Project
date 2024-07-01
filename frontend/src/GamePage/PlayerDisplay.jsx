@@ -1,20 +1,21 @@
 import React, { useEffect } from 'react'
+import { usePlayerContext } from '../useGameContext'
 
-const PlayerDisplay = ({game}) => {
+const PlayerDisplay = () => {
 
-  console.log(game)
+  const {players} = usePlayerContext()
   
   return (
     <div>
         <div>
-            <span>player {game?.players[0]?.id}</span>
-            <span>score: {game?.players[0]?.score}</span>
+            <span>player {players[0]?.id}</span>
+            <span>score: {players[0]?.score}</span>
         </div>
         <div>
-            <span>player {game?.players[1]?.id}</span>
-            <span>score: {game?.players[1]?.score}</span>
+            <span>player {players[1]?.id}</span>
+            <span>score: {players[1]?.score}</span>
         </div>
-        <div>Player {game?.current_player}'s turn</div>
+        {/* <div>Player {game?.current_player}'s turn</div> */}
     </div>
   )
 }

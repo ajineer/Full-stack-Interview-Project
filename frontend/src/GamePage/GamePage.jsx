@@ -1,16 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import PlayerDisplay from './PlayerDisplay'
 import CardGrid from './CardGrid'
 import { fetchGame } from '../routes'
+import { usePlayerContext } from '../useGameContext'
 
 const GamePage = () => {
-  
-  const [game, setGame] = useState({})
-
-  useEffect(() => {
-    setGame(fetchGame())
-  },[])
-
 
   return (
 
@@ -18,9 +12,7 @@ const GamePage = () => {
     //display current player
     //diplay non-matched cards in 
     <>
-        {console.log(fetchGame())}
-        {console.log("game: ", game)}
-        <PlayerDisplay game={game}/>
+        <PlayerDisplay/>
         <CardGrid/>
     </>
   )

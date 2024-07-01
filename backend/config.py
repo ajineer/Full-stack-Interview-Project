@@ -29,5 +29,6 @@ app.secret_key = secrets.token_hex(16)
 
 migrate = Migrate(app, db)
 db.init_app(app)
+api.init_app(app)
 api = Api(app)
 CORS(app)
