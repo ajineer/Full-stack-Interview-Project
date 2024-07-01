@@ -33,10 +33,13 @@ const Card = ({card, submittedCards, setSubmittedCards}) => {
         };
     }
   },[game.current_player, submittedCards.length])
-  //visibility: `${flipped || card.matched ? "visible" : "hidden"}`
   return (
-    <div className='card' onClick={() => handleCardClick(card)} style={{gridColumnStart: card.position[3], gridRowStart: card.position[1], pointerEvents: flipped || submittedCards.length === 2 ? 'none': "auto"}}>
-        <span style={{color: `${card.matched? "red" : "green"}`}}>
+    <div className='card' onClick={() => handleCardClick(card)} style={{gridColumnStart: card.position[3], gridRowStart: card.position[1], pointerEvents: flipped || submittedCards.length === 2 || card.matched ? 'none': "auto"}}>
+        <span style={{
+            fontSize: "3rem",
+            color: `${card.matched? "red" : "green"}`, 
+            // visibility: `${flipped || card.matched ? "visible" : "hidden"}`
+            }}>
             {card.value}
         </span>    
     </div>

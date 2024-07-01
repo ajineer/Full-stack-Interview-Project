@@ -11,7 +11,16 @@ const CardGrid = () => {
   const {cards, dispatch:cardDispatch} = useCardContext()
   const {players, dispatch:playerDispatch} = usePlayerContext()
   const [submittedCards, setSubmittedCards] = useState([])
+  const [results, setResults] = useState("")
   const navigate = useNavigate()
+
+  const handleReset = () => {
+    dispatch({type:"DELETE_GAME"})
+    playerDispatch({type:"DELETE_PLAYERS"})
+    cardDispatch({type:"DELETE_CARDS"})
+    setResults("")
+    navigate('/')
+  }
 
   useEffect(() => {
     const handleGameEnd = async () => {
@@ -19,13 +28,11 @@ const CardGrid = () => {
         method: "DELETE"
       })
       if(response.ok){
-        dispatch({type:"DELETE_GAME"})
-        playerDispatch({type:"DELETE_PLAYERS"})
-        cardDispatch({type:"DELETE_CARDS"})
-        navigate('/')
+        const json = await response.json()
+        setResults(json.message)
       }
     }
-    if(players[0].score + players[1].score === 10){
+    if(players[0]?.score + players[1]?.score === 10){
       handleGameEnd()
     }else{
 
@@ -42,7 +49,6 @@ const CardGrid = () => {
           playerDispatch({type: "PATCH_PLAYERS", payload: json})
           cardDispatch({type: "PATCH_CARDS", payload: json})
           dispatch({type: "PATCH_GAME", payload: json})
-          // setSubmittedCards([])
         }
       }
       if(submittedCards.length == 2){
@@ -52,13 +58,17 @@ const CardGrid = () => {
   },[submittedCards])
 
   return (
-    <div style={{display: 'flex', flexDirection: 'column', width: '100%', height: "100%", pointerEvents: `${submittedCards.length > 1 ? 'none' : 'auto' }`}}>
-      <PlayerDisplay/>
-      <div className='cardGrid'>
+    <div style={{display: 'flex', justifyContent: "center", alignItems: "center", flexDirection: 'column', width: '100%', height: "100%", border: '2px solid yellow'}}>
+      {results==="" && <PlayerDisplay/>}
+     {results !== "" && <div style={{display: 'flex', flexDirection:"column", justifyContent: "center", alignItems: "center", width: "100%", height: '100%', border: "2px solid red"}}>
+        {results}
+        <button onClick={() => handleReset()}>Reset</button>
+      </div>}
+      {results === "" && <div className='cardGrid'>
         {cards?.map(card => {
           return <Card key={card.id} game={game} card={card} submittedCards={submittedCards} setSubmittedCards={setSubmittedCards}/>
         })}
-      </div>
+      </div>}
     </div>
   )
 }

@@ -100,19 +100,19 @@ class GamesById(Resource):
                 if game.players[0].score > game.players[1].score:
                     db.session.delete(game)
                     db.session.commit()
-                    return f"player 1 wins!"
+                    return {"message": "player 1 wins"}
                 elif game.players[1].score > game.players[0].score:
                     db.session.delete(game)
                     db.session.commit()
-                    return f"player 2 wins!"
+                    return {"message": "player 2 wins"}
                 else:
                     db.session.delete(game)
                     db.session.commit()
-                    return f"player 1 and player 2 tied."
+                    return {"message": "it's a tie!"}
             elif request.get_json()["command"] == "reset":
                 db.session.delete(game)
                 db.session.commit()
-                return {"message": "overide to reset database and game"}, 204
+                return {"message": "override to reset database and game"}, 204
             else:
                 return {"message": "no winner yet, keep playing."}, 200
         return {"error": "game not found"}, 404
