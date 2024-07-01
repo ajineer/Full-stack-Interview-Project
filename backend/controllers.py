@@ -20,7 +20,7 @@ class GameMethods(Resource):
 
     def create_cards(self, game_id):
         ints_array = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10]
-        positions = [[x, y] for x in [1, 2, 3, 4, 5] for y in [1, 2, 3, 4, 5, 6]]
+        positions = [[x, y] for x in [1, 2, 3, 4] for y in [1, 2, 3, 4, 5]]
         random.shuffle(positions)
         cards = list()
         index = 0
@@ -36,43 +36,56 @@ class GameMethods(Resource):
         return cards
 
     def post(self):
-
-        try:
-            new_game = self.create_game()
-            cards = self.create_cards(new_game.id)
-            player_1 = Player(score=0, game_id=new_game.id)
-            player_2 = Player(score=0, game_id=new_game.id)
-            for card in cards:
-                db.session.add(card)
-            db.session.add(player_1)
-            db.session.add(player_2)
-            db.session.commit()
-            return (
-                new_game.to_dict(
-                    rules=(
-                        "players",
-                        "cards",
-                    )
-                ),
-                201,
-            )
-        except IntegrityError:
-            return {"error": "could not create game"}, 422
+        existing_game = Game.query.all()
+        if not existing_game:
+            try:
+                new_game = self.create_game()
+                session["game_id"] = new_game.id
+                cards = self.create_cards(new_game.id)
+                player_1 = Player(score=0, game_id=new_game.id)
+                player_2 = Player(score=0, game_id=new_game.id)
+                for card in cards:
+                    db.session.add(card)
+                db.session.add(player_1)
+                db.session.add(player_2)
+                db.session.commit()
+                return (
+                    new_game.to_dict(
+                        rules=(
+                            "players",
+                            "cards",
+                        )
+                    ),
+                    201,
+                )
+            except IntegrityError:
+                return {"error": "could not create game"}, 422
+        return {"error": "A game already exists"}, 403
 
 
 class GamesById(Resource):
 
     def get(self, game_id):
-        game = Game.query.filter(Game.id == game_id).first()
-        if game:
-            return game.to_dict(rules=("players", "cards")), 200
-        return {"error": "game not found"}, 404
+        try:
+            game = Game.query.filter(Game.id == game_id).first()
+            if game:
+                return game.to_dict(rules=("players", "cards")), 200
+            return {"error": "game not found"}, 404
+        except Exception as e:
+            print(f"Exception in get: {e}")
+            return {"error": "Internal server error"}
 
     def post(self, game_id):
-        game = Game.query.filter(Game.id == game_id).first()
-        if game:
-            session["game_id"] = game.id
-            return game.to_dict(rules=("cards", "players"))
+
+        try:
+            game = Game.query.filter(Game.id == game_id).first()
+            if game:
+                session["game_id"] = game.id
+                return game.to_dict(rules=("cards", "players")), 200
+            return {"error": "Game does not exist"}, 404
+        except Exception as e:
+            print(f"Exception in get: {e}")
+            return {"error": "Internal server error"}
 
     def delete(self, game_id):
         game = Game.query.filter(Game.id == game_id).first()
@@ -84,15 +97,18 @@ class GamesById(Resource):
                 if card.matched == True:
                     match_count += 1
             if match_count == 20:
-                db.session.delete(game)
-                db.session.commit()
-                session["game_id"] = None
-                if game.players[0].score > game.players[1]:
-                    return f"player {players[0].id} wins!"
-                elif game.players[1].score > game.players[0]:
-                    return f"player {players[1].id} wins!"
+                if game.players[0].score > game.players[1].score:
+                    db.session.delete(game)
+                    db.session.commit()
+                    return f"player 1 wins!"
+                elif game.players[1].score > game.players[0].score:
+                    db.session.delete(game)
+                    db.session.commit()
+                    return f"player 2 wins!"
                 else:
-                    return f"player {players[0].id} and player {players[1].id} tied."
+                    db.session.delete(game)
+                    db.session.commit()
+                    return f"player 1 and player 2 tied."
             elif request.get_json()["command"] == "reset":
                 db.session.delete(game)
                 db.session.commit()
@@ -105,10 +121,10 @@ class GamesById(Resource):
         game = Game.query.filter(Game.id == game_id).first()
         if game:
             data = request.get_json()
-            submitted_card_1 = data["card_1"]
-            submitted_card_2 = data["card_2"]
-            card_1 = Card.query.filter(Card.id == submitted_card_1["id"]).first()
-            card_2 = Card.query.filter(Card.id == submitted_card_2["id"]).first()
+            submitted_card_1 = data.get("card_1")
+            submitted_card_2 = data.get("card_2")
+            card_1 = Card.query.filter(Card.id == submitted_card_1.get("id")).first()
+            card_2 = Card.query.filter(Card.id == submitted_card_2.get("id")).first()
             current_player = Player.query.filter(
                 Player.id == game.current_player
             ).first()
@@ -120,9 +136,7 @@ class GamesById(Resource):
                 db.session.add(card_2)
                 db.session.add(current_player)
                 db.session.commit()
-                updated_board = Game.query.filter(
-                    Game.id == session.get("game_id")
-                ).first()
+                updated_board = Game.query.filter(Game.id == game.id).first()
                 return (
                     updated_board.to_dict(
                         rules=(

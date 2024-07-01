@@ -1,20 +1,28 @@
-import React, { useCallback, useEffect, useState } from 'react'
 import PlayerDisplay from './PlayerDisplay'
 import CardGrid from './CardGrid'
-import { fetchGame } from '../routes'
-import { usePlayerContext } from '../useGameContext'
-
+import './GamePage.css'
+import { useGameContext } from '../useContext'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 const GamePage = () => {
-
+  const {game} = useGameContext()
+  const navigate = useNavigate()
+  useEffect(() => {
+    if(!game){
+      navigate('/')
+    }
+  },[game])
   return (
+
 
     //diplay players and their scores
     //display current player
     //diplay non-matched cards in 
-    <>
-        <PlayerDisplay/>
-        <CardGrid/>
-    </>
+    (game && 
+        <div className='gamePage'>
+          <CardGrid/>
+      </div>
+    )
   )
 }
 

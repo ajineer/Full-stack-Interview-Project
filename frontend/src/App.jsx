@@ -3,45 +3,49 @@ import './App.css'
 import HomePage from './homePage'
 import GamePage from './GamePage/GamePage'
 import { useEffect, useState } from 'react'
-import { usePlayerContext } from './useGameContext'
+import { useCardContext, useGameContext, usePlayerContext } from './useContext'
 
 
 function App() {
-  // const [game, setGame] = useState({})
   const navigate = useNavigate()
-  const {players, dispatch} = usePlayerContext()
+  const {game, dispatch} = useGameContext()
+  const {dispatch: playerDispatch} = usePlayerContext()
+  const {dispatch: cardDispatch} = useCardContext()
+
   
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch("http://127.0.0.1:5555/game/1")
-      const json = await response.json()
+      const response = await fetch("http://localhost:5555/game/1")
       if (response.ok){
-        dispatch({type: "SET_PLAYERS", payload: json})
-        localStorage.setItem('game', JSON.stringify(json))
-        // setGame({...json})
-        // navigate('/gamePage')
+        const json = await response.json()
+        dispatch({type: "SET_GAME", payload: json})
+        playerDispatch({type: "SET_PLAYERS", payload: json})
+        cardDispatch({type: "SET_CARDS", payload: json})
+        
+        // localStorage.setItem('game', JSON.stringify(json))
+        navigate('/gamePage')
 
       }
       else{
-        console.log(response.status, "could not retrieve game")
+        console.log(response, "could not retrieve game")
       }
     }
     fetchData()
   },[])
 
   return (
-    <>
+    <div className='app-container'>
       {/* <span>{console.log({game})}</span> */}
-      <nav>
+      {/* <nav>
         <NavLink to={'/gamePage'}>
           go to game
         </NavLink>
-      </nav>
+      </nav> */}
       <Routes>
-        <Route path="/" element={<HomePage/>}/>
+        <Route path="/" element={!game || Object.keys(game).length === 0 ? <HomePage/> : <div>Not allowed</div>}/>
         <Route path="/gamePage" element={<GamePage/>}/>
       </Routes>
-    </>
+    </div>
   )
 }
 
