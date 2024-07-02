@@ -38,7 +38,7 @@ const Card = ({card, submittedCards, setSubmittedCards}) => {
         <span style={{
             fontSize: "3rem",
             color: `${card.matched? "red" : "green"}`, 
-            // visibility: `${flipped || card.matched ? "visible" : "hidden"}`
+            visibility: `${flipped || card.matched ? "visible" : "hidden"}`
             }}>
             {card.value}
         </span>    
