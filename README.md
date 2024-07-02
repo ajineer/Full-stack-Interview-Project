@@ -1,9 +1,5 @@
 # Full-stack-Interview-Project
 
-# Getting the game
-
-- git clone git@github.com:ajineer/Full-stack-Interview-Project.git
-
 # setting up virtual environment
 
 - in the main directory of the project run: pipenv install
